@@ -20,14 +20,9 @@ public class Drive {
     private Supplier<Double> deceleration = null;
     double maxSpeed;
 
-    public Drive(LinearOpMode opMode, GamepadInputs gamepad, String[] motorNames, double maxSpeed) {
+    public Drive(LinearOpMode opMode, String[] motorNames, double maxSpeed) {
         this.opMode = opMode;
         this.maxSpeed = maxSpeed;
-
-        //Defalt controls
-        axial = gamepad.left_stick_x;
-        lateral = gamepad.left_stick_y;
-        yaw = gamepad.right_stick_x;
 
         setMotorNames(motorNames[0], motorNames[1], motorNames[2], motorNames[3]);
     }
@@ -37,35 +32,16 @@ public class Drive {
         this.frontRight = opMode.hardwareMap.get(DcMotor.class, frontRight);
         this.backLeft   = opMode.hardwareMap.get(DcMotor.class, backLeft);
         this.backRight  = opMode.hardwareMap.get(DcMotor.class, backRight);
+
     }
 
-    public void setAxialControl(Supplier<Double> axial) {
-        this.axial = axial;
-    }
-
-    public void setLateralControl(Supplier<Double> lateral) {
-        this.lateral = lateral;
-    }
-
-    public void setYawControl(Supplier<Double> yaw) {
-        this.yaw = yaw;
-    }
-
-    public void setDecelerationControl(Supplier<Double> deceleration){
-        this.deceleration = deceleration;
-    }
-
-    public void omniDrive(double axial, double lateral, double yaw){
-        maxSpeed *= deceleration != null ? (1 - deceleration.get()) : 1;
+    public void omniDrive(double axial, double lateral, double yaw, double deceleration){
+        maxSpeed *= 1 - deceleration;
 
         backRight.setPower((axial + lateral -yaw)   * maxSpeed);
         backLeft.setPower((axial - lateral + yaw)   * maxSpeed);
         frontRight.setPower((axial - lateral - yaw) * maxSpeed);
         frontLeft.setPower((axial + lateral + yaw)  * maxSpeed);
-    }
-
-    public void omniDriveUpdate(){
-        omniDrive(-axial.get(), lateral.get(), yaw.get());
     }
 }
 
